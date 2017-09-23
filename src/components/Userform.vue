@@ -159,6 +159,8 @@
       }
     },
     mounted () {
+      window.jsdss = window.jsdss || {};
+      window.jsdss.maps = {};
       // ol view, shared between maps
       var view = new ol.View({
         center: [ -13626654, 4639902 ], // todo: automate center when downlading data
@@ -177,7 +179,7 @@
         })
       })
       // map with points to be kept
-      const mapKeep = new ol.Map({
+      window.jsdss.maps.map = new ol.Map({
         target: 'boundaryMap',
         renderer: 'webgl',
         layers: [
@@ -202,6 +204,10 @@
         ],
         view: view
       })
+    },
+    destroyed(){
+      window.jsdss.maps.map.setTarget(null);
+      window.jsdss.maps.map = null;
     }
   }
 </script>

@@ -1,7 +1,10 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
+
+
+  <div class="row" style="height:200px">
+    <h1 class="col align-self-center">{{ msg }}</h1>
   </div>
+
 </template>
 
 <script>
@@ -17,5 +20,7 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+
+
 
 </style>

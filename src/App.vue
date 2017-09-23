@@ -11,22 +11,35 @@
       <div class="collapse navbar-collapse" id="navbarsExampleDefault">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item active">
-            <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+            <!--<a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>-->
+            <router-link to="/" class="nav-link" active-class="active" exact>Home<span class="sr-only">(current)</span></router-link>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Link</a>
+            <router-link to="/mapping" class="nav-link" active-class="active" exact>Mapping</router-link>
           </li>
           <li class="nav-item">
             <a class="nav-link disabled" href="#">Disabled</a>
           </li>
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="http://example.com" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+            <a class="nav-link dropdown-toggle" href="http://example.com" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Singles</a>
             <div class="dropdown-menu" aria-labelledby="dropdown01">
-              <a class="dropdown-item" href="#">Action</a>
-              <a class="dropdown-item" href="#">Another action</a>
-              <a class="dropdown-item" href="#">Something else here</a>
+
+              <router-link to="/userform" class="dropdown-item" active-class="active" >User</router-link>
+              <router-link to="/uploaddata" class="dropdown-item" active-class="active" >Upload data</router-link>
+              <router-link to="filter" class="dropdown-item" active-class="active" >Filter data</router-link>
+              <router-link to="/browsedata" class="dropdown-item" active-class="active" >Browse data</router-link>
+
             </div>
           </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="http://example.com" id="dropdown02" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Guided</a>
+            <div class="dropdown-menu" aria-labelledby="dropdown01">
+
+              <router-link to="/uploadfilter" class="dropdown-item" active-class="active" >Upload and filter</router-link>
+              <router-link to="/interpolate" class="dropdown-item" active-class="active" >Interpolate</router-link>
+            </div>
+          </li>
+
         </ul>
         <form class="form-inline my-2 my-lg-0">
           <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
@@ -39,12 +52,14 @@
       <!-- here insert the content -->
       <!--header-->
 
+      <router-view name="header"></router-view>
+
       <!--body-->
 
       <router-view></router-view>
 
       <!--footer-->
-
+      <router-view name="footer"></router-view>
 
     </div><!-- /.container-fluid -->
 
@@ -56,12 +71,16 @@
 
 // import p from './assets/js/prova.js'
 // require('./assets/js/main.js')
-import './assets/js/histo.js' // empty imports just execute the bodies
-import './assets/js/colors.js'
-import './assets/js/jscolor.min.js'
+// import './assets/js/histo.js' // empty imports just execute the bodies
+// import './assets/js/colors.js'
+// import './assets/js/jscolor.min.js'
 
+// import Footer from './components/Footer.vue'
 export default {
   name: 'app',
+  components: {
+    // appFooter: Footer
+  },
   created: function () {
     // console.log(window.jsdss)
     // console.log(window.jscolor)
