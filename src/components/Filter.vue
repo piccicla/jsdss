@@ -44,8 +44,13 @@
           <div class="w-100"></div>
           <div class="row ml-3 my-1">
             <!-- choose colors for style -->
-            <span class="redtext">Color1&nbsp;</span><input class="jscolor" onchange="updateLowColor(this.jscolor)" value="FFFFFF" size="6">
-            <span class="redtext">&nbsp;Color2&nbsp;</span><input class="jscolor" onchange="updateHighColor(this.jscolor)" value="FF0000" size="6"><br>
+            <!--<span class="redtext">Color1&nbsp;</span><input class="jscolor" onchange="updateLowColor(this.jscolor)" value="FFFFFF" size="6">-->
+            <!--<span class="redtext">&nbsp;Color2&nbsp;</span><input class="jscolor" onchange="updateHighColor(this.jscolor)" value="FF0000" size="6"><br>-->
+            <!--<span class="redtext">Color1&nbsp;</span><input id ="lowColor" class="jscolor" v-on:change="updateLowColor(this.jscolor)" value="FFFFFF" size="6">-->
+            <!--<span class="redtext">&nbsp;Color2&nbsp;</span><input id="highColor" class="jscolor" v-on:change="updateHighColor(this.jscolor)" value="FF0000" size="6"><br>-->
+            <span class="redtext">Color1&nbsp;</span><input id ="lowColor" class="jscolor" value="FFFFFF" size="6">
+            <span class="redtext">&nbsp;Color2&nbsp;</span><input id="highColor" class="jscolor" value="FF0000" size="6"><br>
+
           </div>
           <div class="w-100"></div>
           <div class="row ml-3 my-1">
@@ -93,7 +98,8 @@
     </div><!--row-->
 
     <div class="row"><!-- submit data -->
-      <button  type="button" id="uploadSelection" class="col-lg-6 btn btn-danger">Update data</button>
+      <!--<button  type="button" id="uploadSelection" class="col-lg-6 btn btn-danger">Update data</button>-->
+      <button  type="button" id="uploadSelection" class="col-lg-6 btn btn-danger"  @click="uploadSelection">Update data</button>
     </div><!--row-->
 
 
@@ -128,9 +134,59 @@
     name: 'mappa',
     data () {
       return {
-        msg: 'Welcome to Your OpenLayers3 map',
+        msg: 'Welcome to Your OpenLayers3 map'
         // mapKeep: void 0,
         // mapRemove: void 0
+        //rgb1: [254, 255,255],
+        //rgb2: [255, 0, 0]
+
+      }
+    },
+
+    methods:{
+
+      // set the starting colors for the visualization and convert to rgb
+      // these methods don't work because pick, this.jscolor is not passed, therefore I added the event listener in the mountes()
+      /*updateLowColor:function (pick) {
+        this.rgb1=[Math.round(pick.rgb[0]),Math.round(pick.rgb[1]),Math.round(pick.rgb[2])]
+        console.log("updatinglowcolor")
+        console.log(this.rgb1)
+        window.jsdss.colors.rgb1 = this.rgb1
+      },
+      updateHighColor:function (pick) {
+        this.rgb2=[Math.round(pick.rgb[0]),Math.round(pick.rgb[1]),Math.round(pick.rgb[2])]
+        console.log("updatinghighcolor")
+        console.log(this.rgb1)
+        window.jsdss.colors.rgb2 = this.rgb2
+      }*/
+      uploadSelection(){
+        // const geojsource = this.$store.state.data.geojsource
+        const geojsource = window.jsdss.data.geojsource
+        //window.jsdss.data.uploadIds = []
+        const uploadIds = []
+        if (geojsource.getFeatures().length){
+          // switch (window.jsdss.data.dataType) {
+          if(!(this.$store.getters.getAllowedDataType.indexOf(this.$store.getters.getDataType)===-1)){ // check against the allowed datatypes
+          switch (this.$store.getters.getDataType){ // use getter
+            case "canopy":
+              geojsource.getFeatures().forEach(function(f){uploadIds.push(f.get("id_cdata"))})
+              break;
+            case "yield":
+              geojsource.getFeatures().forEach(function(f){uploadIds.push(f.get("id_ydata"))})
+              break;
+            case "soil":
+              geojsource.getFeatures().forEach(function(f){uploadIds.push(f.get("id_sdata"))})
+              break;
+            case "sensor":
+              geojsource.getFeatures().forEach(function(f){uploadIds.push(f.get("id_sdata"))})
+              break;
+          }
+          // this.$store.state.data.uploadIds = uploadIds // set here to avoid performance problems
+          this.$store.commit('updateIds',uploadIds) // commit mutation to the store
+          console.log('features ready to be uploaded')
+          }
+          else {console.log(this.$store.getters.getDataType + ' is not an allowed datatype')}
+        }
       }
     },
     mounted () {
@@ -141,6 +197,8 @@
       window.jsdss = window.jsdss || {};
       window.jsdss.data = {};
       window.jsdss.maps = {};
+      window.jsdss.colors.rgb1 = [255, 255, 255]
+      window.jsdss.colors.rgb2 = [0, 0, 0]
       ////////////storing debug variables
       window.jsdss.debug = {};
       window.jsdss.debug.histo = []
@@ -149,7 +207,11 @@
 
       ////////////////
       // dataType should be passed by the framework, now just debug
-      window.jsdss.data.dataType = window.jsdss.debug.dataType;
+      if (debug) {
+        window.jsdss.data.dataType = window.jsdss.debug.dataType;
+        // this.$store.state.data.dataType = window.jsdss.debug.dataType;
+        this.$store.commit('setDataType',window.jsdss.debug.dataType) // commit mutation
+      }
 
       //////////////////////// get reference to dom elements
       var average = document.getElementById('infoAverageKeep');
@@ -168,19 +230,20 @@
       var keepSelection = document.getElementById('keepSelection');
       var uploadSelection = document.getElementById('uploadSelection');
       /////////////////////
-
+      var lowColor = document.getElementById('lowColor');
+      var higColor = document.getElementById('highColor');
 
       //////////////////utility functions
 
       //function to calculate the average value of a field for a ol.Collection of features
       function calculateaverage(featureCollection,field, precision=2){
         var sum = 0;
-        featureCollection.array_.forEach(function(f){ sum+=f.getProperties()[field]});
+        //featureCollection.array_.forEach(function(f){ sum+=f.getProperties()[field]});
+        featureCollection.getArray().forEach(function(f){ sum+=f.getProperties()[field]});
         return (sum / featureCollection.getLength()).toFixed(precision);
-      };
+      }
 
       ////////////////////////////////
-
 
       //ol view, shared between maps
       var view = new ol.View({
@@ -229,14 +292,16 @@
 
         ],
         view: view
-      });
+      })
 
 
 
       /////////  original  dataset //////////////
 
       //source for geojson, this should be downloaded from the server
-      var geojsource =new ol.source.Vector({
+      //NOTE geojsource is not put in the Vuex store because that would add automatically create getter and setter
+      // function for all the values, this will decrease the efficiency when selecting/deselecting features
+      window.jsdss.data.geojsource =new ol.source.Vector({
         format: new ol.format.GeoJSON(),
         url: '/static/points.json' //todo: downlading data
       })
@@ -252,10 +317,10 @@
       // point geojson layer from url
       var pointLayer = new ol.layer.Vector({
         visible: true,
-        source: geojsource,
+        source: window.jsdss.data.geojsource,
         style: pointStyle
       });
-      window.jsdss.maps.mapKeep.addLayer(pointLayer);
+      window.jsdss.maps.mapKeep.addLayer(pointLayer)
 
 
       ///// try to read custom geojson ////////////////////
@@ -266,10 +331,10 @@
 
       var format = new ol.format.GeoJSON({
         featureProjection:"EPSG:3857"   /// spcify the map projection ;is this necessary?
-      });
+      })
       var vectorSource = new ol.source.Vector({
         features: format.readFeatures(routeJSON)
-      });
+      })
       // point geojson layer from local source
       var drawLayer = new ol.layer.Vector({
         visible: true,
@@ -295,7 +360,7 @@
         element: document.getElementById('popup-container'),
         positioning: 'bottom-center',
         offset: [0, -10]
-      });
+      })
       window.jsdss.maps.mapKeep.addOverlay(overlay);
       //show info when clicking on the point   //todo: make it work
       /*var showInfo = window.jsdss.maps.mapKeep.on('click', function(e) {
@@ -314,14 +379,14 @@
       //delete average value when clicking on the map
       window.jsdss.maps.mapKeep.on('click', function(e) {
         average.innerHTML = 'Average value ';
-      });
+      })
 
 
       /////// draw a new boundary for clipping
       const sourceClip = new ol.source.Vector();
       const layer = new ol.layer.Vector({
         source: sourceClip
-      });
+      })
       window.jsdss.maps.mapKeep.addLayer(layer); //todo: the user should select a boundary from the database too
 
 
@@ -329,55 +394,60 @@
       var drawPolygon = new ol.interaction.Draw({
         type: 'Polygon',
         source: sourceClip
-      });
+      })
 
       //initialize interaction for editing a polygon
       var editPolygon = new ol.interaction.Modify({
         source: sourceClip
-      });
+      })
 
 
       // select points to remove
       var select = new ol.interaction.Select({
         layers:[pointLayer]
         //,multi: true
-      });
-      window.jsdss.maps.mapKeep.addInteraction(select);
+      })
+      window.jsdss.maps.mapKeep.addInteraction(select)
 
-      var selectedFeatures = select.getFeatures();
+      var selectedFeatures = select.getFeatures()
 
       //window.jsdss.maps.mapKeep.unByKey(showInfo);	//todo: let the single selection with info
 
 
       // set the starting colors for the visualization and convert to rgb
-      var rgb1= [254, 255,255]; var rgb2= [255, 0, 0];
-      function updateLowColor(pick) {
+      /*var rgb1= [254, 255,255]; var rgb2= [255, 0, 0];
+
+
+      function updateLowColor(pick) {}
         rgb1=[Math.round(pick.rgb[0]),Math.round(pick.rgb[1]),Math.round(pick.rgb[2])]
       }
       function updateHighColor(pick) {
         rgb2=[Math.round(pick.rgb[0]),Math.round(pick.rgb[1]),Math.round(pick.rgb[2])];
-      }
-
+      }*/
 
       //todo: how to sTart dragbox on a mobile device?
       var dragBox = new ol.interaction.DragBox({
         condition: ol.events.condition.platformModifierKeyOnly
-      });
+      })
 
       // a DragBox interaction used to select features to delete by drawing boxes
-      window.jsdss.maps.mapKeep.addInteraction(dragBox);
+      window.jsdss.maps.mapKeep.addInteraction(dragBox)
       dragBox.on('boxend', function() {
+
         // features that intersect the box are added to the collection of
         // selected features
         var extent = dragBox.getGeometry().getExtent();
         if ("includes" in Array.prototype){	//check ecmascript6 'includes'
-          geojsource.forEachFeatureIntersectingExtent(extent, function(feature) {
-            if  (!(selectedFeatures.array_.includes(feature)))
-            {selectedFeatures.push(feature);}
-          });
+
+          window.jsdss.data.geojsource.forEachFeatureIntersectingExtent(extent, function(feature) {
+            //if  (!(selectedFeatures.array_.includes(feature)))
+              if  (!(selectedFeatures.getArray().includes(feature)))
+            {selectedFeatures.push(feature)}
+          })
         }
         else{ //noecmascript6
-          geojsource.forEachFeatureIntersectingExtent(extent, function(feature) {
+
+          window.jsdss.data.geojsource.forEachFeatureIntersectingExtent(extent, function(feature) {
 
             //check if the feature is already in the selection, if not add
             //let add = true
@@ -394,15 +464,16 @@
                       selectedFeatures.push(feature);
                   };*/
 
-            if  (!(selectedFeatures.array_.indexOf(feature) > -1))
+            //if  (!(selectedFeatures.array_.indexOf(feature) > -1))
+              if  (!(selectedFeatures.getArray().indexOf(feature) > -1))
             {selectedFeatures.push(feature);}
 
-          }); //end geojsource.forEachFeatureIntersectingExtent
+          }) //end geojsource.forEachFeatureIntersectingExtent
         }
 
         // show average value for all the selected points
         average.innerHTML = 'Average value ' + calculateaverage(selectedFeatures,'value');
-      });
+      })
 
 
       /*dragBox.on('boxend', function() {
@@ -425,7 +496,7 @@
           bingLayer
         ],
         view: view
-      });
+      })
 
       // empty the average when clicking on the map
       window.jsdss.maps.mapRemove.on('click', function(){
@@ -436,7 +507,7 @@
       var selectedVectorSource = new ol.source.Vector()
       var selectedVector = new ol.layer.Vector({
         source:selectedVectorSource,style: pointStyle
-      });
+      })
       window.jsdss.maps.mapRemove.addLayer(selectedVector);
 
 
@@ -444,76 +515,88 @@
       var selectRight = new ol.interaction.Select({
         layers:[selectedVector]
         //,multi: true
-      });
-      window.jsdss.maps.mapRemove.addInteraction(selectRight);
-      var selectedFeaturesRight = selectRight.getFeatures();
+      })
+      window.jsdss.maps.mapRemove.addInteraction(selectRight)
+      var selectedFeaturesRight = selectRight.getFeatures()
 
 
       //window.jsdss.maps.mapKeep.unByKey(showInfo);	//todo: fix label for single selection
-
-
 
       // a DragBox interaction by drawing boxes; used to select features to be sent bak to the keep map
       //todo: how do I select on mobile devices
       var dragBoxRight = new ol.interaction.DragBox({
         condition: ol.events.condition.platformModifierKeyOnly
-      });
-      window.jsdss.maps.mapRemove.addInteraction(dragBoxRight);
+      })
+      window.jsdss.maps.mapRemove.addInteraction(dragBoxRight)
       dragBoxRight.on('boxend', function() {
         // features that intersect the box are added to the collection of
         // selected features
-        var extentRight = dragBoxRight.getGeometry().getExtent();
+        var extentRight = dragBoxRight.getGeometry().getExtent()
         if ("includes" in Array.prototype){	//check ecmascript6 'includes'
           selectedVectorSource.forEachFeatureIntersectingExtent(extentRight, function(feature) {
-            if  (!(selectedFeaturesRight.array_.includes(feature)))
-            {selectedFeaturesRight.push(feature);}
-          });
+            //if  (!(selectedFeaturesRight.array_.includes(feature)))
+              if  (!(selectedFeaturesRight.getArray().includes(feature)))
+            {selectedFeaturesRight.push(feature)}
+          })
         }
         else{
 
           selectedVectorSource.forEachFeatureIntersectingExtent(extentRight, function(feature) {
 
-            if  (!(selectedFeaturesRight.array_.indexOf(feature) > -1))
-            {selectedFeaturesRight.push(feature);}
-          });
+            //if  (!(selectedFeaturesRight.array_.indexOf(feature) > -1))
+              if  (!(selectedFeaturesRight.getArray().indexOf(feature) > -1))
+            {selectedFeaturesRight.push(feature)}
+          })
         }
 
         // show average value for all the selected points
         //console.log(calculateaverage(selectedFeaturesRight,'value'));
-        averageRemove.innerHTML = 'Average value ' + calculateaverage(selectedFeaturesRight,'value');
+        averageRemove.innerHTML = 'Average value ' + calculateaverage(selectedFeaturesRight,'value')
 
       });
 
+
       ///////////////////////////////////BUTTONS KEEP MAP////////////////////////
+      lowColor.addEventListener('change', function(){
+        window.jsdss.colors.rgb1=[Math.round(this.jscolor.rgb[0]),Math.round(this.jscolor.rgb[1]),Math.round(this.jscolor.rgb[2])]
+        //console.log(window.jsdss.colors.rgb1)
+      })
+      highColor.addEventListener('change', function(){
+        window.jsdss.colors.rgb2=[Math.round(this.jscolor.rgb[0]),Math.round(this.jscolor.rgb[1]),Math.round(this.jscolor.rgb[2])]
+        //console.log(window.jsdss.colors.rgb2)
+      })
 
       //clear all the selected features on the keep map
       clearTempRem.addEventListener('click', function () {
         if(selectedFeatures){
-          selectedFeatures.clear();
-          average.innerHTML = 'Average value ';
+          selectedFeatures.clear()
+          average.innerHTML = 'Average value '
         }
       });
 
       //  add selected features to the remove map
       addRemoved.addEventListener('click', function () {
         if(selectedFeatures.getLength()){
+
           //move features to the other map
-          selectedVectorSource.addFeatures(selectedFeatures.array_);
+          //selectedVectorSource.addFeatures(selectedFeatures.array_);
+          selectedVectorSource.addFeatures(selectedFeatures.getArray());
           //remove features from the layer
+
           selectedFeatures.forEach(function(feature){
             //console.log('remove feature');
-            geojsource.removeFeature(feature);
+            window.jsdss.data.geojsource.removeFeature(feature)
           });
           //clear this selection
-          selectedFeatures.clear();
+          selectedFeatures.clear()
 
           //automatic style change?
           if(automateColors.checked){
             //console.log('changing style');
-            window.jsdss.colors.styleGraduated(pointLayer, 'value', rgb1, rgb2 );
+            window.jsdss.colors.styleGraduated(pointLayer, 'value', window.jsdss.colors.rgb1, window.jsdss.colors.rgb2 )
           }
         }
-      });
+      })
 
       // draw a new boundary
       var clipping = false
@@ -523,7 +606,7 @@
           if(editing){
             editing = !editing
             editClip.innerHTML = 'Edit boundary'
-            window.jsdss.maps.mapKeep.removeInteraction(editPolygon);
+            window.jsdss.maps.mapKeep.removeInteraction(editPolygon)
           }
           addClip.innerHTML = 'Stop Clip'
           window.jsdss.maps.mapKeep.addInteraction(drawPolygon);
@@ -532,11 +615,11 @@
           addClip.innerHTML = 'Add Clip'
           window.jsdss.maps.mapKeep.removeInteraction(drawPolygon);
         }
-      });
+      })
 
       drawPolygon.on('drawstart', function(e) {
         sourceClip.clear()
-      });
+      })
 
 
       // edit the boundary
@@ -548,9 +631,9 @@
           if(editing){
             if(clipping){
               //console.log("removing clipping interaction");
-              clipping=!clipping;
-              addClip.innerHTML = 'Add Clip';
-              window.jsdss.maps.mapKeep.removeInteraction(drawPolygon);
+              clipping=!clipping
+              addClip.innerHTML = 'Add Clip'
+              window.jsdss.maps.mapKeep.removeInteraction(drawPolygon)
             }
             //console.log("I am editing");
             editClip.innerHTML = 'Stop edit'
@@ -558,7 +641,7 @@
           }else{
             //console.log("I am NOT editing");
             editClip.innerHTML = 'Edit boundary'
-            window.jsdss.maps.mapKeep.removeInteraction(editPolygon);
+            window.jsdss.maps.mapKeep.removeInteraction(editPolygon)
           }
         }
       });
@@ -572,14 +655,15 @@
       clip.addEventListener('click', function () {
 
         if(sourceClip.getFeatures().length){
+
           /*
               var thePolygonExtent = sourceClip.getFeatures()[0].getGeometry().getExtent()
-              var thefeaturesinside = geojsource.getFeaturesInExtent(sourceClip.getFeatures()[0].getGeometry().getExtent());
+              var thefeaturesinside = window.jsdss.data.geojsource.getFeaturesInExtent(sourceClip.getFeatures()[0].getGeometry().getExtent());
 
 
               var tempFeatures = []
 
-              geojsource.getFeatures().forEach(function(feature){
+              window.jsdss.data.geojsource.getFeatures().forEach(function(feature){
 
                   if  (!(thefeaturesinside.includes(feature))){
                       tempFeatures.push(feature);
@@ -598,11 +682,11 @@
 
             var tempFeatures = []
             var tempFeatures2 = []
-            geojsource.forEachFeatureIntersectingExtent(thePolygonExtent, function(f){
+            window.jsdss.data.geojsource.forEachFeatureIntersectingExtent(thePolygonExtent, function(f){
                     tempFeatures.push(f);
                 })
 
-            geojsource.getFeatures().forEach(function(feature){
+            window.jsdss.data.geojsource.getFeatures().forEach(function(feature){
 
                     if  (!(tempFeatures.includes(feature))){
                         tempFeatures2.push(feature);
@@ -616,13 +700,14 @@
                 */
           var tempFeatures = []
           var polygonGeometry = sourceClip.getFeatures()[0].getGeometry()
-          geojsource.getFeatures().forEach(function(feature){
 
-            var coords = feature.getGeometry().getCoordinates();
+          window.jsdss.data.geojsource.getFeatures().forEach(function(feature){
+
+            var coords = feature.getGeometry().getCoordinates()
 
             if  (!(polygonGeometry.intersectsCoordinate(feature.getGeometry().getCoordinates()))){
 
-              tempFeatures.push(feature);
+              tempFeatures.push(feature)
 
             }
 
@@ -634,7 +719,7 @@
             //remove features from original map
             tempFeatures.forEach(function(feature){
               //console.log('remove feature');
-              geojsource.removeFeature(feature);
+              window.jsdss.data.geojsource.removeFeature(feature)
               //remove polygon
               sourceClip.clear();
             });
@@ -643,7 +728,7 @@
           //automatic style change?
           if(automateColors.checked){
             //console.log('changing style');
-            window.jsdss.colors.styleGraduated(pointLayer, 'value', rgb1, rgb2 );
+            window.jsdss.colors.styleGraduated(pointLayer, 'value', window.jsdss.colors.rgb1, window.jsdss.colors.rgb2 )
           }
 
         } // end if(sourceClip.getFeatures().length)
@@ -655,10 +740,11 @@
       // openlayers3 cookbook p.212
       applyColors.addEventListener('click', function () {
         //console.warn('applyStyle disabled due to performance');
-        window.jsdss.colors.styleGraduated(pointLayer, 'value', rgb1, rgb2 )
+        //console.log(window.jsdss.colors.rgb1)
+        //console.log(window.jsdss.colors.rgb2)
+        window.jsdss.colors.styleGraduated(pointLayer, 'value', window.jsdss.colors.rgb1, window.jsdss.colors.rgb2 )
 
       });
-
 
 
       var histo =[]
@@ -705,22 +791,22 @@
         /////get the min and max values from the histogram, the loops are necessary to
         /////skip empty bins
         //var min = histo[0].x
-        var min = void 0;
+        var min = void 0
         for (var i = 0; i< histo.length; i++) {
           if(histo[i].length){ //this is true when length>0
             //min = histo[i].x; this would return the edge of the bin
-            min = Math.min.apply(Math, histo[i]);
-            break;
+            min = Math.min.apply(Math, histo[i])
+            break
           }
         }
         //var length = histo.length
         //var max = histo[length-1].x + histo[length-1].dx
-        var max = void 0;
+        var max = void 0
         for (var i = histo.length-1; i>-1; i--) {
           if(histo[i].length){ //this is true when length>0
             //max = histo[i].x + histo[i].dx;//this would return the edge of the bin
-            max = Math.max.apply(Math, histo[i]);
-            break;
+            max = Math.max.apply(Math, histo[i])
+            break
           }
         }
 
@@ -732,8 +818,8 @@
         // update echarts histogram // todo: change with bokehjs when I get an answer for the bug
         // I need a list with all the central values and a list with all the height
 
-        var centers = [];
-        var high = [];
+        var centers = []
+        var high = []
         if (histo.length>0){
           for (var i = 0; i< histo.length; i++) {
             centers.push(((histo[i].x+(histo[i].x+histo[i].dx))/2).toFixed(2)) // central value
@@ -759,21 +845,21 @@
           }
 
         }
-      });
+      })
 
 
       //get threshold values
 
       clipRange.addEventListener('click', function () {
 
-        var lowTh = parseFloat(document.getElementById('lowTh').value);
+        var lowTh = parseFloat(document.getElementById('lowTh').value)
 
-        var highTh = parseFloat(document.getElementById('highTh').value);
+        var highTh = parseFloat(document.getElementById('highTh').value)
 
         if (lowTh<highTh){
           window.jsdss.histo.selectOutsideRange( pointLayer, 'value', selectedFeatures, lowTh,highTh)
         } else{
-          console.log('check threshold values!');
+          console.log('check threshold values!')
         }
       });
 
@@ -784,10 +870,11 @@
       keepAll.addEventListener('click', function () {
         if(selectedVectorSource.getFeatures().length)
         {
+
           //clear any selection
           selectedFeaturesRight.clear()
           //move features to the other map
-          geojsource.addFeatures(selectedVectorSource.getFeatures());
+          window.jsdss.data.geojsource.addFeatures(selectedVectorSource.getFeatures())
           //clear the layer
           selectedVectorSource.clear();
           averageRemove.innerHTML = 'Average value '
@@ -795,7 +882,7 @@
           //automatic style change?
           if(automateColors.checked){
             //console.log('changing style');
-            window.jsdss.colors.styleGraduated(pointLayer, 'value', rgb1, rgb2 );
+            window.jsdss.colors.styleGraduated(pointLayer, 'value', window.jsdss.colors.rgb1, window.jsdss.colors.rgb2 )
           }
 
         }
@@ -805,21 +892,23 @@
 
       keepSelection.addEventListener('click', function () {
         if(selectedFeaturesRight.getLength()){
+
           //move features to the other map
-          geojsource.addFeatures(selectedFeaturesRight.array_);
+          //geojsource.addFeatures(selectedFeaturesRight.array_);
+          window.jsdss.data.geojsource.addFeatures(selectedFeaturesRight.getArray());
           //remove features from the layer
           selectedFeaturesRight.forEach(function(feature){
             //console.log('remove feature');
             selectedVectorSource.removeFeature(feature);
           });
           //clear this selection
-          selectedFeaturesRight.clear();
-          averageRemove.innerHTML = 'Average value ';
+          selectedFeaturesRight.clear()
+          averageRemove.innerHTML = 'Average value '
 
           //automatic style change?
           if(automateColors.checked){
             //console.log('changing style');
-            window.jsdss.colors.styleGraduated(pointLayer, 'value', rgb1, rgb2 );
+            window.jsdss.colors.styleGraduated(pointLayer, 'value', window.jsdss.colors.rgb1, window.jsdss.colors.rgb2 )
           }
 
         }
@@ -828,26 +917,27 @@
 
       // add the selected features ID to a list, ready to be uploaded with a POST request
       uploadSelection.addEventListener('click', function () {
-
-        window.jsdss.data.uploadIds = []
+        // const geojsource = window.jsdss.data.geojsource
+        /*window.jsdss.data.uploadIds = []
         if (geojsource.getFeatures().length){
-          switch (window.jsdss.data.dataType) {
+          // switch (window.jsdss.data.dataType) {
+          switch (window.vm.$store.state.data.dataType){
             case "canopy":
-              geojsource.getFeatures().forEach(function(f){window.jsdss.data.uploadIds.push(f.values_.id_cdata)})
+              geojsource.getFeatures().forEach(function(f){window.jsdss.data.uploadIds.push(f.get("id_cdata"))})
               break;
             case "yield":
-              geojsource.getFeatures().forEach(function(f){window.jsdss.data.uploadIds.push(f.values_.id_ydata)})
+              geojsource.getFeatures().forEach(function(f){window.jsdss.data.uploadIds.push(fget("id_ydata"))})
               break;
             case "soil":
-              geojsource.getFeatures().forEach(function(f){window.jsdss.data.uploadIds.push(f.values_.id_sdata)})
+              geojsource.getFeatures().forEach(function(f){window.jsdss.data.uploadIds.push(f.get("id_sdata"))})
               break;
             case "sensor":
-              geojsource.getFeatures().forEach(function(f){window.jsdss.data.uploadIds.push(f.values_.id_sdata)})
+              geojsource.getFeatures().forEach(function(f){window.jsdss.data.uploadIds.push(f.get("id_sdata"))})
               break;
           }
 
           console.log('features ready to be uploaded')
-        }
+        }*/
 
         // convert to string ready for the post request
         // "111111111,"*20000 will be around 200kb
@@ -885,10 +975,12 @@
       myChart.setOption(option)
     },
     destroyed(){
-      window.jsdss.maps.mapKeep.setTarget(null);
-      window.jsdss.maps.mapKeep = null;
-      window.jsdss.maps.mapRemove.setTarget(null);
-      window.jsdss.maps.mapRemove = null;
+      window.jsdss.maps.mapKeep.setTarget(null)
+      window.jsdss.maps.mapKeep = null
+      window.jsdss.maps.mapRemove.setTarget(null)
+      window.jsdss.maps.mapRemove = null
+      // remove the geojson datasource
+      window.jsdss.data.geojsource = null
     }
   }
 </script>

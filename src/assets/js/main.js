@@ -49,7 +49,7 @@ var uploadSelection = document.getElementById('uploadSelection');
 //function to calculate the average value of a field for a ol.Collection of features
 function calculateaverage(featureCollection,field, precision=2){
 	var sum = 0;
-	featureCollection.array_.forEach(function(f){ sum+=f.getProperties()[field]});
+	featureCollection.getArray().forEach(function(f){ sum+=f.getProperties()[field]});
 	return (sum / featureCollection.getLength()).toFixed(precision);
 };
 
@@ -246,7 +246,7 @@ dragBox.on('boxend', function() {
 	var extent = dragBox.getGeometry().getExtent();
 	if ("includes" in Array.prototype){	//check ecmascript6 'includes'
 		geojsource.forEachFeatureIntersectingExtent(extent, function(feature) {
-			if  (!(selectedFeatures.array_.includes(feature)))
+			if  (!(selectedFeatures.getArray().includes(feature)))
 				{selectedFeatures.push(feature);}
 		});
 	}
@@ -255,8 +255,8 @@ dragBox.on('boxend', function() {
 
 			//check if the feature is already in the selection, if not add
 			//let add = true
-			//for (var i = 0, ii = selectedFeatures.array_.length; i < ii; ++i) {
-			/*if (selectedFeatures.array_[i] === feature) {
+			//for (var i = 0, ii = selectedFeatures.getArray().length; i < ii; ++i) {
+			/*if (selectedFeatures.getArray()[i] === feature) {
 				add=false;
 			  break;  //exit for EachF...
 			}*/
@@ -264,11 +264,11 @@ dragBox.on('boxend', function() {
 			//}
 
 
-			/*if  (!(selectedFeatures.array_.indexOf(feature) > -1)){
+			/*if  (!(selectedFeatures.getArray().indexOf(feature) > -1)){
 				selectedFeatures.push(feature);
 			};*/
 
-			if  (!(selectedFeatures.array_.indexOf(feature) > -1))
+			if  (!(selectedFeatures.getArray().indexOf(feature) > -1))
 				{selectedFeatures.push(feature);}
 
 		}); //end geojsource.forEachFeatureIntersectingExtent
@@ -282,7 +282,7 @@ dragBox.on('boxend', function() {
 /*dragBox.on('boxend', function() {
 //selectedFeatures.clear();
 	let sum = 0;
-	select.getFeatures().array_.forEach(function(f){ sum+=f.getProperties()['value']});
+	select.getFeatures().getArray().forEach(function(f){ sum+=f.getProperties()['value']});
 	average.innerHTML = 'Average value ' + (sum/select.getFeatures().getLength()).toFixed(2);
 });*/
 
@@ -340,7 +340,7 @@ dragBoxRight.on('boxend', function() {
 	var extentRight = dragBoxRight.getGeometry().getExtent();
 	if ("includes" in Array.prototype){	//check ecmascript6 'includes'
 		selectedVectorSource.forEachFeatureIntersectingExtent(extentRight, function(feature) {
-			if  (!(selectedFeaturesRight.array_.includes(feature)))
+			if  (!(selectedFeaturesRight.getArray().includes(feature)))
 				{selectedFeaturesRight.push(feature);}
 		});
 	}
@@ -348,7 +348,7 @@ dragBoxRight.on('boxend', function() {
 
 		selectedVectorSource.forEachFeatureIntersectingExtent(extentRight, function(feature) {
 
-			if  (!(selectedFeaturesRight.array_.indexOf(feature) > -1))
+			if  (!(selectedFeaturesRight.getArray().indexOf(feature) > -1))
 				{selectedFeaturesRight.push(feature);}
 		});
 	}
@@ -376,7 +376,7 @@ clearTempRem.addEventListener('click', function () {
 addRemoved.addEventListener('click', function () {
 	if(selectedFeatures.getLength()){
 		//move features to the other map
-		selectedVectorSource.addFeatures(selectedFeatures.array_);
+		selectedVectorSource.addFeatures(selectedFeatures.getArray());
 		//remove features from the layer
 		selectedFeatures.forEach(function(feature){
 			//console.log('remove feature');
@@ -683,7 +683,7 @@ keepAll.addEventListener('click', function () {
 keepSelection.addEventListener('click', function () {
 	if(selectedFeaturesRight.getLength()){
 		//move features to the other map
-		geojsource.addFeatures(selectedFeaturesRight.array_);
+		geojsource.addFeatures(selectedFeaturesRight.getArray());
 		//remove features from the layer
 		selectedFeaturesRight.forEach(function(feature){
 			//console.log('remove feature');
@@ -693,7 +693,7 @@ keepSelection.addEventListener('click', function () {
 		selectedFeaturesRight.clear();
 		averageRemove.innerHTML = 'Average value ';
 
-		//automatic style change?
+		//automatic style chaupdateLowColornge?
 		if(automateColors.checked){
 			//console.log('changing style');
 			window.jsdss.colors.styleGraduated(pointLayer, 'value', rgb1, rgb2 );

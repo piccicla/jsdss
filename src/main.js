@@ -3,6 +3,7 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import {store} from './store/store'
 //
 //
 // here importing the wideapp javascript, each component will import other javascript
@@ -12,9 +13,12 @@ import './assets/css/jsdss.css'
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */
-new Vue({
+const vm = new Vue({
   el: '#app',
   router,
+  store,
   template: '<App/>',
   components: { App }
 })
+
+window.vm = vm

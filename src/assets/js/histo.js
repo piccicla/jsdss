@@ -49,14 +49,16 @@ window.jsdss.histo.selectOutsideRange =function ( layer, filterAttribute, select
 
 	if ("includes" in Array.prototype){ //check ecmascript6 "includes"
 		selectedRange.forEach(function(feature){
-			if  (!(selectedFeatures.array_.includes(feature))){
+			//if  (!(selectedFeatures.array_.includes(feature))){
+        if  (!(selectedFeatures.getArray().includes(feature))){
 							selectedFeatures.push(feature);
 			}
 		});
 	}
 	else{
 		selectedRange.forEach(function(feature){
-			if  (!(selectedFeatures.array_.indexOf(feature) > -1)){
+			//if  (!(selectedFeatures.array_.indexOf(feature) > -1)){
+      if  (!(selectedFeatures.getArray().indexOf(feature) > -1)){
 					selectedFeatures.push(feature);
 			}
 		});
@@ -66,12 +68,14 @@ window.jsdss.histo.selectOutsideRange =function ( layer, filterAttribute, select
 	selectedRange.forEach(function(feature){
 
 				if ("includes" in Array.prototype){	//check ecmascript6 "includes"
-					if  (!(selectedFeatures.array_.includes(feature))){
+					//if  (!(selectedFeatures.array_.includes(feature))){
+            if  (!(selectedFeatures.getArray().includes(feature))){
 						selectedFeatures.push(feature);
 					}
 				}
 				else{
-				if  (!(selectedFeatures.array_.indexOf(feature) > -1)){
+				//if  (!(selectedFeatures.array_.indexOf(feature) > -1)){
+          if  (!(selectedFeatures.getArray().indexOf(feature) > -1)){
 								selectedFeatures.push(feature);
 						}
 				}
