@@ -10,6 +10,7 @@ import Interpolate from '@/components/wizards/Interpolate'
 import Footer from '@/components/Footer'
 import Gridding from '@/components/Gridding'
 import Mapping from '@/components/Mapping'
+import {store} from '../store/store'
 
 Vue.use(Router)
 
@@ -57,12 +58,24 @@ export default new Router({
       children: [
         {
           path: '/',
-          component: Uploaddata
+          component: Uploaddata,
+          beforeEnter: (to, from, next) => { // entering the first component will set the text/path and reset the step
+            store.commit('resetStep')
+            store.commit('setLeftText', ['exit', 'back to upload'])
+            store.commit('setLeftPath', ['/', '/uploadfilter'])
+            store.commit('setRightText', ['filter', 'exit'])
+            store.commit('setRightPath', ['/uploadfilter/filter', '/'])
+            next()
+          }
         },
         {
           path: '/uploadfilter/filter',
           name: 'FilterUploaded',
-          component: Filter
+          component: Filter,
+          beforeEnter: (to, from, next) => { // updating the step
+            store.commit('setStep', 1)
+            next()
+          }
         }
       ]
     },
@@ -75,7 +88,15 @@ export default new Router({
       children: [
         {
           path: '/',
-          component: Gridding
+          component: Gridding,
+          beforeEnter: (to, from, next) => {
+            store.commit('resetStep')
+            store.commit('setLeftText', ['exit'])
+            store.commit('setLeftPath', ['/'])
+            store.commit('setRightText', ['exit'])
+            store.commit('setRightPath', ['/'])
+            next()
+          }
         }
       ]
     }

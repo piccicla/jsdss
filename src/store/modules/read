@@ -1,1 +1,3 @@
 put the substores in this folder and then merge them in the store.js
+
+can also split further into action.js,getters.js,mutations.js --- see section 7 lecture 268
