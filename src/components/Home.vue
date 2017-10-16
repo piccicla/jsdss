@@ -1,7 +1,7 @@
 <template>
 
 
-  <div class="row" style="height:200px">
+  <div class="row" style="height:200px;paddind-top:150px">
     <h1 class="col align-self-center">{{ msg }}</h1>
   </div>
 

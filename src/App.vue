@@ -28,6 +28,7 @@
               <router-link to="/uploaddata" class="dropdown-item" active-class="active" >Upload data</router-link>
               <router-link to="filter" class="dropdown-item" active-class="active" >Filter data</router-link>
               <router-link to="/browsedata" class="dropdown-item" active-class="active" >Browse data</router-link>
+              <router-link to="/test" class="dropdown-item" active-class="active" >Test vue-resource</router-link>
 
             </div>
           </li>

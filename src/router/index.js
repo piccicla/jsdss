@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import Test from '@/components/Test'
 import Home from '@/components/Home'
 import Filter from '@/components/Filter'
 import Userform from '@/components/Userform'
@@ -16,6 +17,11 @@ Vue.use(Router)
 
 export default new Router({
   routes: [
+    {
+      path: '/test',
+      name: 'Test',
+      component: Test
+    },
     {
       path: '/',
       name: 'Home',

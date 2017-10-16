@@ -1,3 +1,4 @@
+/* store for wizard tools, keep track of the passages */
 const state = {
   step: 0,
   rightText: [],

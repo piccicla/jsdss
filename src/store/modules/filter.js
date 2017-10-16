@@ -1,3 +1,4 @@
+/* store for the filter tool */
 const state = {
   data: {
     allowedDataTypes: ['canopy', 'yield', 'soil', 'sensor'], // these are the allowed datatypes according to the database design

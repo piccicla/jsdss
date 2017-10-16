@@ -256,7 +256,7 @@
         visible: true,
         preload: Infinity,
         source: new ol.source.BingMaps({
-          key: 'AhpitiRZ52gxx8vlBVKnuZoEA6B0OHYRjILKE11zB1823EU9l2SoJ4ZVGWFCYxRz',
+          key:  this.$store.getters.getBingkey,
           imagerySet: 'AerialWithLabels',
           // use maxZoom 19 to see stretched tiles instead of the BingMaps
           // "no photos at this zoom level" tiles
