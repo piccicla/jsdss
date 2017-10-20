@@ -74,7 +74,6 @@
           <label for="swathunit">unit</label>
           <select ref="swathunit" class="form-control" id="swathunit">
             <option value="m">meter</option>
-            <option value="cm">centimeter</option>
             <option value="f">foot</option>
             <option value="i">yard</option>
           </select>
@@ -87,8 +86,7 @@
           <label for="offsetunit">unit</label>
           <select ref="offsetunit" class="form-control" id="offsetunit">
             <option value="m">meter</option>
-            <option value="cm">centimeter</option>
-            <option value="f">foott</option>
+            <option value="f">foot</option>
             <option value="i">yard</option>
           </select>
         </div>
@@ -100,7 +98,6 @@
           <label for="rowspacingunit">unit</label>
           <select ref="rowspacingunit" class="form-control" id="rowspacingunit">
             <option value="m">meter</option>
-            <option value="cm">centimeter</option>
             <option value="f">foot</option>
             <option value="i">yard</option>
           </select>
@@ -395,6 +392,8 @@
         // TODO: check datetime fields
         this.$store.commit('setDatetime', this.$refs.datefield.value + ' ' + this.$refs.timefield.value)
 
+        this.uploaddisabled = true //disable upload button
+
         this.formData = new FormData();
         this.formData.append('file', this.file);
         this.formData.append('metatable', this.$store.getters.getMetatable);
@@ -471,10 +470,10 @@
               console.log(response.content)
               this.fields = response.content[0].value
 
-              this.uploaddisabled = true //disable upload button
               this.setfieldsdisabled = false
             } else{
               console.log(response)
+              this.uploaddisabled = false //disable upload button
             }
           }
         )
@@ -500,6 +499,7 @@
         this.$store.commit('setLon', this.$refs.lonfield.value)
         this.$store.commit('setValue1', this.$refs.value1field.value)
 
+        this.setfieldsdisabled = true // disable button
 
         this.formData = new FormData();
 
@@ -551,11 +551,11 @@
             response => {
               console.log(response)
               if (response && response.success) {
-               console.log('')
-
-                this.setfieldsdisabled = true // disable button
+                // console.log('')
                 this.$store.commit('setRightButtonDisabled', false) // enable next button
-              } else{}
+              } else{
+                this.setfieldsdisabled = false
+              }
             }
           ) // end service call
 
@@ -574,8 +574,8 @@
       // populate the tools dropdown for canopyupdate tools
       this.updateTools()
 
-
-      // this.$store.commit('setRightButtonDisabled', true)
+      // the next button is disabled
+      this.$store.commit('setRightButtonDisabled', true)
 
     }
   }
