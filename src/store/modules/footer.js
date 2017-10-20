@@ -4,7 +4,9 @@ const state = {
   rightText: [],
   rightPath: [],
   leftText: [],
-  leftPath: []
+  leftPath: [],
+  leftbuttondisabled: false,
+  rightbuttondisabled: false
 }
 
 const getters = { // put here functions for common calculations to avoid duplicate code in the components
@@ -29,6 +31,12 @@ const getters = { // put here functions for common calculations to avoid duplica
   },
   getLeftPath: state => {
     return state.leftPath
+  },
+  getLeftButtonDisabled: state => {
+    return state.leftbuttondisabled
+  },
+  getRightButtonDisabled: state => {
+    return state.rightbuttondisabled
   }
 }
 
@@ -53,6 +61,12 @@ const mutations = { // update the store synchronously
   },
   setLeftPath: (state, text) => {
     state.leftPath = text
+  },
+  setLeftButtonDisabled: (state, text) => {
+    state.leftbuttondisabled = text
+  },
+  setRightButtonDisabled: (state, text) => {
+    state.rightbuttondisabled = text
   }
 }
 

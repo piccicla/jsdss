@@ -10,3 +10,13 @@
   </div>
 
 </template>
+
+
+<script>
+export default {
+  beforeRouteLeave (to, from, next) { // set wizard to empty
+    this.$store.commit('resetWizard', '')
+    next()
+  }
+}
+</script>

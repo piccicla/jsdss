@@ -18,6 +18,20 @@ window.jsdss.histo || (window.jsdss['histo']={});
 
 
 /**
+ *calculate the average value of a field for a ol.Collection of features
+ * @param {Object} FeatureCollection -  ol.Collection of features
+ * @param {String} field -  the field to ise for the average
+ * @param {Number} precision -  number of decimals
+ */
+window.jsdss.histo.calculateaverage = function (featureCollection,field, precision=2){
+  var sum = 0;
+  //featureCollection.array_.forEach(function(f){ sum+=f.getProperties()[field]});
+  featureCollection.getArray().forEach(function(f){ sum+=f.getProperties()[field]});
+  return (sum / featureCollection.getLength()).toFixed(precision);
+}
+
+
+/**
 *create n intervals between a and b, this will be used for histogram bins
  * @param {number} a - lower boundary
  * @param {number} b - higher boundary

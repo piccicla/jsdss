@@ -65,7 +65,8 @@ export default new Router({
         {
           path: '/',
           component: Uploaddata,
-          beforeEnter: (to, from, next) => { // entering the first component will set the text/path and reset the step
+          beforeEnter: (to, from, next) => { // entering the first component will set the text/path and reset the step, also set the wizard state
+            store.commit('setWizard', 'uploadfilter') // wizards is cleaned in beforeRouteLeave() in the  Uploaddata component
             store.commit('resetStep')
             store.commit('setLeftText', ['exit', 'back to upload'])
             store.commit('setLeftPath', ['/', '/uploadfilter'])
@@ -79,6 +80,7 @@ export default new Router({
           name: 'FilterUploaded',
           component: Filter,
           beforeEnter: (to, from, next) => { // updating the step
+            store.commit('setWizard', 'uploadfilter') // wizards is cleaned in beforeRouteLeave() in the Uploaddata component
             store.commit('setStep', 1)
             next()
           }
@@ -96,6 +98,7 @@ export default new Router({
           path: '/',
           component: Gridding,
           beforeEnter: (to, from, next) => {
+            store.commit('setWizard', 'interpolate')
             store.commit('resetStep')
             store.commit('setLeftText', ['exit'])
             store.commit('setLeftPath', ['/'])
