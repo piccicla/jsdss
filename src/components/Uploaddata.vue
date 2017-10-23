@@ -75,7 +75,7 @@
           <select ref="swathunit" class="form-control" id="swathunit">
             <option value="m">meter</option>
             <option value="f">foot</option>
-            <option value="i">yard</option>
+            <option value="y">yard</option>
           </select>
         </div>
         <div class="form-group col-md-3">
@@ -87,7 +87,7 @@
           <select ref="offsetunit" class="form-control" id="offsetunit">
             <option value="m">meter</option>
             <option value="f">foot</option>
-            <option value="i">yard</option>
+            <option value="y">yard</option>
           </select>
         </div>
         <div class="form-group col-md-3">
@@ -99,7 +99,7 @@
           <select ref="rowspacingunit" class="form-control" id="rowspacingunit">
             <option value="m">meter</option>
             <option value="f">foot</option>
-            <option value="i">yard</option>
+            <option value="y">yard</option>
           </select>
         </div>
       </div>
@@ -128,7 +128,6 @@
     <hr>
 
     <div class="border mt-2 bg-light ">
-
 
       <div class="row  col-sm-12"> <!--outer row-->
 
@@ -233,14 +232,14 @@
 
             <div class="row p-2">
               <div class="form-group col-12">
-                <label for="newToolComments">Comments</label>
+                <label for="newToolComments">Comments (optional)</label>
                 <textarea ref="newtoolcomments" class="form-control" id="newToolComments" rows="4" ></textarea>
               </div>
             </div>
 
          </div>
           <div class="modal-footer">
-            <button class="btn btn-primary" >Add</button>
+            <button class="btn btn-primary" @click="addtool"  :disabled="addtooldisabled" >Add</button>
             <button class="btn btn-secondary" data-dismiss="modal">Close</button>
           </div>
         </div>
@@ -260,7 +259,8 @@
           tools: 'processing/database/gettools/executesync/',
           upload: 'processing/database/upload/executesync/',
           fields: 'processing/database/getfields/executesync/',
-          todatabase: 'processing/database/todatabase/executesync/'
+          todatabase: 'processing/database/todatabase/executesync/',
+          addtool: 'processing/database/addtool/executesync/'
         },
         tools: [],
         formData: '',
@@ -271,7 +271,8 @@
         v5disabled: true,
         v6disabled: true,
         uploaddisabled: false,
-        setfieldsdisabled: true
+        setfieldsdisabled: true,
+        addtooldisabled:true
 
       }
     },
@@ -284,6 +285,7 @@
       onTypeChange(e) {
         console.log(e.target.value)
         this.$store.commit('setMetatable', e.target.value)
+
         // updatetools
         this.updateTools()
 
@@ -338,9 +340,9 @@
         ).then(
           response => {
             // console.log(response)
-
             if (response && response.success) {
               this.tools = response.content[0].value
+              this.addtooldisabled = false //allows adding new tools
             } else {
               this.tools = []
             }
@@ -359,10 +361,46 @@
         console.log(files[0].name)
         this.file = files[0]
       },
+      addtool(){  // query database to add a new tool
+        if (!this.$refs.newtoolnamefield.value) {
+          console.log("mandatory tool is missing")
+          return
+        }
+        console.log(this.$refs.newtoolnamefield.value)
+
+        this.addtooldisabled = true
+
+        this.$http.post(this.urls.addtool, {
+            metatable: this.$store.getters.getMetatable,
+            toolname: this.$refs.newtoolnamefield.value,
+            comments: this.$refs.newtoolcomments.value
+          },
+          { //headers: {'Content-Type': 'multipart/form-data'},
+            emulateJSON: true //Send request body as application/x-www-form-urlencoded content type, yo avoid FormData
+          }).then(
+          response => {
+            return response.json()
+          },
+          error => {
+            this.addtooldisabled = false
+            this.logErr(error)
+          }
+        ).then(
+          response => {
+            if (response && response.success) {
+              console.log(response.content)
+              this.updateTools()
+              // this.addtooldisabled = false this is done at the end of updateTools()
+            } else{
+              console.log(response)
+              this.addtooldisabled = false
+            }
+          }
+        )
+      },
       upload() {
         //TODO: check  type of optional fields
         console.log(this.$parent.$parent.$)
-
 
 
         if (!this.$refs.filefield.files[0]) {
@@ -402,17 +440,37 @@
         this.formData.append('roworientation', this.$store.getters.getRoworientation);
 
         if (this.$refs.swathfield.value) {
-          this.$store.commit('setSwathwidth', this.$refs.swathfield.value)
+          if (this.$refs.swathunit.value === "f") {
+            this.$store.commit('setSwathwidth', this.$refs.swathfield.value * 0.3048)
+          }
+          else if(this.$refs.swathunit.value === "y") {
+            this.$store.commit('setSwathwidth', this.$refs.swathfield.value * 0.9144)
+          }
+          else {
+            this.$store.commit('setSwathwidth', this.$refs.swathfield.value)
+          }
           this.formData.append('swathwidth', this.$store.getters.getSwathwidth);
         }
 
         if (this.$refs.offsetfield.value) {
-          this.$store.commit('setOfset', this.$refs.offsetfield.value)
+          if(this.$refs.offsetunit.value === "f"){
+            this.$store.commit('setOfset', this.$refs.offsetfield.value*0.3048)
+          }
+          else if(this.$refs.swathunit.value === "y"){
+            this.$store.commit('setOfset', this.$refs.offsetfield.value*0.9144)
+          }
+          else{this.$store.commit('setOfset', this.$refs.offsetfield.value)}
           this.formData.append('ofset', this.$store.getters.getOfset);
         }
 
         if (this.$refs.rowspacingfield.value) {
-          this.$store.commit('setRowspacing', this.$refs.rowspacingfield.value)
+          if(this.$refs.rowspacingunit.value === "f"){
+            this.$store.commit('setRowspacing', this.$refs.rowspacingfield.value*0.3048)
+          }
+          else if(this.$refs.swathunit.value === "y"){
+            this.$store.commit('setRowspacing', this.$refs.rowspacingfield.value*0.9144)
+          }
+          else{this.$store.commit('setRowspacing', this.$refs.rowspacingfield.value)}
           this.formData.append('rowspacing', this.$store.getters.getRowspacing);
         }
         if (this.$refs.commentsfield.value) {

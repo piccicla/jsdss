@@ -39,6 +39,23 @@
           <input type="text" class="form-control" id="roworientation" placeholder="roworientation" v-model="user.roworientation">
         </div>
     </div>
+    <div class="row">
+      <div class="form-group col-md-3">
+        <label for="toolname">toolname</label>
+        <input type="text" class="form-control" id="toolname" placeholder="toolname" v-model="user.toolname">
+      </div>
+      <div class="form-group col-md-3">
+        <label for="datasetid">comments</label>
+        <input  type="number" class="form-control" id="datasetid" v-model="user.datasetid">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="form-group col-md-6">
+        <label for="comments">comments</label>
+        <textarea class="form-control" id="comments" rows="3"  v-model="user.comments"></textarea>
+      </div>
+    </div>
 
     <div class="row">
       <div class="form-group col-md-6">
@@ -80,7 +97,9 @@
           datetime: '2017-10-16 14:19:25.01',
           file: '',
           roworientation: 'NE',
-
+          toolname: 'supertool',
+          comments: 'this is a comment',
+          datasetid: 64
         },
         testresult: 'result...',
         errorresult: 'error...',
@@ -89,8 +108,6 @@
     },
     methods: {
       submit () {
-
-
 
         // console.log(this.user.name)
         //var formData = new FormData();
@@ -106,6 +123,9 @@
         this.formData.append( 'roworientation', this.user.roworientation);
         this.formData.append( 'folderid', this.user.folderid);
         this.formData.append( 'fileformat', this.user.fileformat);
+        this.formData.append( 'toolname', this.user.toolname);
+        this.formData.append( 'comments', this.user.comments);
+        this.formData.append( 'datasetid', this.user.datasetid);
         this.$http.post(this.url, this.formData,
 
         /*this.$http.post(this.url, {folderid: this.user.folderid, fileformat: this.user.fileformat,
