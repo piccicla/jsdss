@@ -140,7 +140,7 @@
               this.$refs.infofield.value = "bounding box: " + value.bbox + "\n" +
               "number points: " + value.npoints + "\n" +
               "tool: " + value.tname + "\n" +
-              "row orintation(meters): " + value.rowor +
+              "row orientation(meters): " + value.rowor +
               " | swath_width(meters): " + value.swath +
               " | offset(meters): " + value.offs +
               " | row_spacing(meters): " + value.rowspac + "\n" +

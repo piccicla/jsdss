@@ -6,6 +6,11 @@
     <div class="row justify-content-center">
       <h1 class="ml-2 mt-5">GRIDDING</h1>
     </div>
+
+
+    <img src="/static/img/grid.gif" align="center">
+
+
     <hr>
   </div>
 
@@ -20,3 +25,14 @@ export default {
   }
 }
 </script>
+
+
+<style scoped>
+
+  img {
+    display:block;
+    margin:auto;
+  }
+
+
+</style>

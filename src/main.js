@@ -9,8 +9,10 @@ import VueResource from 'vue-resource'
 //
 // here importing the wideapp javascript, each component will import other javascript
 import './assets/css/jsdss.css'
+import './assets/css//font-awesome.min.css'
 //
 //
+
 Vue.config.productionTip = false
 Vue.use(VueResource)
 
